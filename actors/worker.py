@@ -1,4 +1,4 @@
-import requests, pika, json, sys, os
+import requests, pika, json, sys, os, re
 
 forbidden_words = []
 
@@ -9,7 +9,8 @@ forbidden_words = []
 isGoodChar = lambda x : x in [chr(i) for i in list(range(97, 97+26)) + list(range(65, 65+26))] or x == " "
 
 # Verifie si un mot est autorise
-isGoodWord = lambda x : len(x) >= 4 and not(x in forbidden_words)
+#isGoodWord = lambda x : len(x) >= 4 and not(x in forbidden_words)
+isGoodWord = lambda x : len(x) >= 4 and not(x in forbidden_words) and not(False in [isGoodChar(letter) for letter in x])
 
 # Renvoie l'url gutendex d'une page
 getUrl = lambda id :  "https://www.gutenberg.org/files/{}/{}-0.txt".format(id, id)
@@ -18,7 +19,8 @@ getUrl = lambda id :  "https://www.gutenberg.org/files/{}/{}-0.txt".format(id, i
 getResponseText = lambda id : requests.get(getUrl(id)).text.lower()
 
 # Retire les mauvais caractères et mots
-cleanText = lambda text : " ".join(filter(isGoodWord, "".join(filter(isGoodChar, text)).split(" ")))
+#cleanText = lambda text : " ".join(filter(isGoodWord, re.split(r" |\n", "".join(filter(isGoodChar, text)))))
+cleanText = lambda text : " ".join(filter(isGoodWord,re.split(r" |\n|\r", text)))
 
 # Cree un dictionnaire avec les bons mots et leurs occurences
 cleanTextToDico = lambda text : strToDictCount(text)
@@ -58,6 +60,10 @@ def main():
 		channel.queue_declare(queue='book')
 
 		channel.basic_publish(exchange='', routing_key='book', body=body)
+  
+		channel.queue_declare(queue='graphe')
+
+		channel.basic_publish(exchange='', routing_key='graphe', body=body)
 
 		print(" [x] Sent " + title)
 		connection.close()

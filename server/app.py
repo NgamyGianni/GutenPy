@@ -1,4 +1,4 @@
-import redis, json
+import redis, json, sqlite3, ast
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 
@@ -53,7 +53,7 @@ def home():
 	results = sorted(results, key=lambda x : score(x[1], d), reverse=True)
  
 	# Results :: [(id, title, score)]
-	return {"result" : results}
+	return {"results" : results}
 
 @app.route("/all", methods=["GET"])
 @cross_origin(supports_credentials=True)
@@ -80,3 +80,20 @@ def sugg():
 	converted_dict = dict(sorted_words_by_jaccard)
  
 	return {"results" : str(converted_dict)}
+
+@app.route("/sugg", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def sugg2():
+	req = request.args.get('id')
+	if req is None: return {"result" : []}
+
+	conn = sqlite3.connect('books.db')
+	cursor = conn.cursor()
+
+	# i, next, closeness, betweenness
+	cursor.execute("SELECT next FROM graphe WHERE i = ?", req)
+	rows = cursor.fetchone()
+ 
+	conn.close()
+
+	return {"results" : str(rows[0])}

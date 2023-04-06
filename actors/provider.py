@@ -1,4 +1,4 @@
-import redis, json, pika, sys, os
+import redis, json, pika, sys, os, sqlite3
 
 def main():
 	pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
@@ -9,6 +9,24 @@ def main():
 	channel = connection.channel()
 
 	channel.queue_declare(queue='book')
+	channel.queue_declare(queue='graphe')
+ 
+	def callback_graphe(ch, method, properties, body):
+    		# Ouvrir une connexion à la base de données
+		conn = sqlite3.connect('../server/books.db')
+		cursor = conn.cursor()
+     
+		body = json.loads(body)
+		title, i, downloads, word_dict = body
+		word_dict = str(word_dict)
+
+		print(" [x] Received %r" % i)
+
+		# Persist
+		cursor.execute('INSERT INTO book (title, i, downloads, word) VALUES (?, ?, ?, ?)',
+						   (title, i, downloads, word_dict))
+		conn.commit()
+		conn.close()
 
 	def callback(ch, method, properties, body):
 		body = json.loads(body)
@@ -26,6 +44,7 @@ def main():
 		#for key in word_dict : r.delete(key) #delete entiere db
 
 	channel.basic_consume(queue='book', on_message_callback=callback, auto_ack=True)
+	channel.basic_consume(queue='graphe', on_message_callback=callback_graphe, auto_ack=True)
 
 	print(' [*] Waiting for messages. To exit press CTRL+C')
 	channel.start_consuming()
