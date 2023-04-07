@@ -4,8 +4,10 @@ def main():
 	pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
 	r = redis.Redis(connection_pool=pool)
 	pipe = r.pipeline()
+ 
+	credentials = pika.PlainCredentials("provider", "provider")
 
-	connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+	connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', credentials=credentials))
 	channel = connection.channel()
 
 	channel.queue_declare(queue='book')

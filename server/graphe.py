@@ -64,4 +64,3 @@ for book in books:
 
 # Deconnect db
 conn.close()
-

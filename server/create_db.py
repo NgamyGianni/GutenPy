@@ -39,31 +39,6 @@ def createGrapheDb():
 
 	# Fermeture de la connexion à la base de données
 	conn.close()
-"""
-# Ouvrir une connexion à la base de données
-conn = sqlite3.connect('books.db')
-cursor = conn.cursor()
 
-title = "heha"
-i = 15
-downloads = 5000
-word_dict = str({"hello" : 10})
-
-cursor.execute('INSERT INTO book (title, i, downloads, word) VALUES (?, ?, ?, ?)',
-						   (title, i, downloads, word_dict))
-conn.commit()
-conn.close()"""
-
-"""createBooks()
+createBooks()
 createGrapheDb()
-"""
-
-conn = sqlite3.connect('books.db')
-cursor = conn.cursor()
-
-title = "alice"
-cursor.execute("SELECT * FROM graphe")
-rows = cursor.fetchall()
-print(rows)
-
-conn.close()
