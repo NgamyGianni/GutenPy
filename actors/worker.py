@@ -13,7 +13,7 @@ isGoodChar = lambda x : x in [chr(i) for i in list(range(97, 97+26)) + list(rang
 isGoodWord = lambda x : len(x) >= 4 and not(x in forbidden_words) and not(False in [isGoodChar(letter) for letter in x])
 
 # Renvoie l'url gutendex d'une page
-getUrl = lambda id :  "https://www.gutenberg.org/files/{}/{}-0.txt".format(id, id)
+getUrl = lambda id :  "https://www.gutenberg.org/cache/epub/{}/pg{}.txt".format(id, id)
 
 # Renvoie la page gutendex recherchee
 getResponseText = lambda id : requests.get(getUrl(id)).text.lower()
@@ -89,7 +89,7 @@ def main():
 
 			send(body, title)
 
-	channel.basic_qos(prefetch_count=2)
+	channel.basic_qos(prefetch_count=4)
 	channel.basic_consume(queue='id', on_message_callback=callback, auto_ack=True)
 
 	print(' [*] Waiting for messages. To exit press CTRL+C')

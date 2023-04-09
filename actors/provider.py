@@ -40,11 +40,6 @@ def main():
 		for key in word_dict : pipe.rpush(key, json.dumps((title, i, downloads, word_dict[key])))
 		pipe.execute()
 
-		#element = r.lrange("that", 0, -1)
-
-		# Clear db
-		#for key in word_dict : r.delete(key) #delete entiere db
-
 	channel.basic_consume(queue='book', on_message_callback=callback, auto_ack=True)
 	channel.basic_consume(queue='graphe', on_message_callback=callback_graphe, auto_ack=True)
 

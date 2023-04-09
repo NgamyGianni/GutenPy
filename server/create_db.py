@@ -42,3 +42,17 @@ def createGrapheDb():
 
 createBooks()
 createGrapheDb()
+
+"""conn = sqlite3.connect('books.db')
+cursor = conn.cursor()
+
+# Création de la table
+cursor.execute('''
+		SELECT closeness from graphe
+''')
+rows = cursor.fetchall()
+
+print(rows)
+
+# Fermeture de la connexion à la base de données
+conn.close()"""

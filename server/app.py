@@ -1,4 +1,4 @@
-import redis, json, sqlite3, ast
+import redis, json, sqlite3, ast, re
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 
@@ -19,19 +19,13 @@ def LtoDict(L):
 
 	return d
 
-@app.route("/", methods=["GET"])
-@cross_origin(supports_credentials=True)
-def home():
-	
+def search(s):
 	# Functions
 	score = lambda title, d : (0.01 * d[title][1]) + d[title][2]
 
-	req = request.args.get("search")
-	if req is None: return {"result" : []}
-
 	# book_info :: (title, id, downloads, word_count)
  	# Request -> [[book_info]]
-	LL = [[json.loads(e) for e in r.lrange(word.lower(), 0, -1)] for word in req.split(" ")]
+	LL = [[json.loads(e) for e in r.lrange(word.lower(), 0, -1)] for word in s.split(" ")]
 	LLtitles = [[e[0] for e in L] for L in LL]
 
 	# [[book_info]] -> [book_info]
@@ -51,13 +45,39 @@ def home():
 
 	# Sorted List
 	results = sorted(results, key=lambda x : score(x[1], d), reverse=True)
+
+	return results
+
+@app.route("/", methods=["GET"])
+@cross_origin(supports_credentials=True)
+def simple_search():
+	req = request.args.get("search")
+	if req is None: return {"result" : []}
  
 	# Results :: [(id, title, score)]
-	return {"results" : results}
+	return {"results" : search(req)}
 
-@app.route("/all", methods=["GET"])
+@app.route("/re", methods=["GET"])
 @cross_origin(supports_credentials=True)
-def state():	return {"keys" : [key.decode('utf-8') for key in r.keys()]}
+def regex_search():
+	req = request.args.get("search")
+	if req is None: return {"result" : []}
+
+	# string -> regex
+	regex = re.compile(req)
+
+	# words if regex match
+	keys = [key.decode('utf-8') for key in r.keys()]
+	filtered_words = list(filter(lambda key : re.match(regex, key), keys))
+
+	res = set()
+	for word in filtered_words : 
+		res = res.union(search(word))
+
+	# Sorted List
+	results = sorted(res, key=lambda x : x[2], reverse=True)
+
+	return {"results" : results}
 
 @app.route("/sugg", methods=["GET"])
 @cross_origin(supports_credentials=True)

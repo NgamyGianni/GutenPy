@@ -9,6 +9,7 @@ const App = () => {
   const [switchResult, setSwitchResult] = useState<boolean>(false)
 
   const searchLink : string = "http://127.0.0.1:5000/?search="
+  const regexSearchLink : string = "http://127.0.0.1:5000/re?search="
   const suggestionLink : string = "http://127.0.0.1:5000/sugg?id="
   const recommmendLink : string = "http://127.0.0.1:5000/recommend"
 
@@ -24,7 +25,6 @@ const App = () => {
       headers : headersOpt,
       redirect: 'follow'
     };
-
     console.log(input)
     
     fetch(link + (input === undefined ? "" : input), requestOptions)
@@ -65,6 +65,7 @@ const App = () => {
       <div style={{display: "flex", justifyContent: "center"}}>
         <input onChange={(e) => setSearch(e.target.value)}/>
         <button onClick={() => {getData(filterSearch(), searchLink); setSwitchResult(true)}}>Search</button>
+        <button onClick={() => {getData(filterSearch(), regexSearchLink); setSwitchResult(true)}}>Advance Search</button>
       </div>
       <div>
         { switchResult ? <h1>Results</h1> : "" }

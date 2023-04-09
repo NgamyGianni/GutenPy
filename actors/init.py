@@ -17,7 +17,7 @@ def main():
 		connection.close()
  
 	# Send every IDs
-	for i in range(40): send(str(i))
+	for i in range(2000): send(str(i))
 
 if __name__ == '__main__':
 	try:
