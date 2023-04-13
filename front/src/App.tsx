@@ -62,6 +62,7 @@ const App = () => {
 
   return (
     <div className="App">
+      <h1>GutenPy</h1>
       <div style={{display: "flex", justifyContent: "center"}}>
         <input onChange={(e) => setSearch(e.target.value)}/>
         <button onClick={() => {getData(filterSearch(), searchLink); setSwitchResult(true)}}>Search</button>
